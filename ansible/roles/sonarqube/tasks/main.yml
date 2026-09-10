@@ -1,0 +1,23 @@
+---
+- name: Set kernel parameters required by SonarQube (Elasticsearch)
+  sysctl:
+    name: "{{ item.name }}"
+    value: "{{ item.value }}"
+    state: present
+    reload: yes
+  loop:
+    - { name: "vm.max_map_count", value: "262144" }
+    - { name: "fs.file-max", value: "65536" }
+
+- name: Run SonarQube as a Docker container
+  community.docker.docker_container:
+    name: sonarqube
+    image: sonarqube:community
+    state: started
+    restart_policy: unless-stopped
+    ports:
+      - "9000:9000"
+    volumes:
+      - sonarqube_data:/opt/sonarqube/data
+      - sonarqube_extensions:/opt/sonarqube/extensions
+      - sonarqube_logs:/opt/sonarqube/logs

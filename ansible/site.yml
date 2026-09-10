@@ -1,0 +1,5 @@
+---
+# Master playbook - runs all roles across all tool servers in one shot
+- import_playbook: playbook-jenkins.yml
+- import_playbook: playbook-sonarqube.yml
+- import_playbook: playbook-nexus.yml

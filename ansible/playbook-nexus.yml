@@ -1,0 +1,7 @@
+---
+- name: Configure Nexus server
+  hosts: nexus
+  become: yes
+  roles:
+    - docker
+    - nexus

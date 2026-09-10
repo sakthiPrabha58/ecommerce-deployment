@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>CloudForge Shop</title>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 640px; margin: 40px auto; }
+    h1 { color: #2c3e50; }
+    ul { list-style: none; padding: 0; }
+    li { padding: 12px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; }
+  </style>
+</head>
+<body>
+  <h1>CloudForge Shop</h1>
+  <p>Product list served by the backend microservice:</p>
+  <ul id="products"></ul>
+
+  <script>
+    fetch("/api/products")
+      .then(r => r.json())
+      .then(data => {
+        const list = document.getElementById("products");
+        data.products.forEach(p => {
+          const li = document.createElement("li");
+          li.innerHTML = `<span>${p.name}</span><span>$${p.price}</span>`;
+          list.appendChild(li);
+        });
+      })
+      .catch(() => {
+        document.getElementById("products").innerHTML = "<li>Backend unreachable</li>";
+      });
+  </script>
+</body>
+</html>

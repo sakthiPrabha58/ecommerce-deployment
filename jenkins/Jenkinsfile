@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        NEXUS_REGISTRY      = "13.206.109.49/8081/repository/docker-hosted"
+        NEXUS_REGISTRY      = "13.206.109.49:8081/repository/docker-hosted"
         SONARQUBE_SERVER    = "sonarqube-server"          // name configured in Jenkins > Manage Jenkins > System
         EKS_CLUSTER_NAME    = "microcloud-eks"
         AWS_REGION          = "ap-south-1"
@@ -17,10 +17,13 @@ pipeline {
             }
         }
 
-        stage('Backend: Unit Tests') {
+       stage('Backend: Unit Tests') {
             steps {
                 dir('app/backend') {
                     sh '''
+                        if ! python3 -m venv --help >/dev/null 2>&1; then
+                            sudo apt-get update && sudo apt-get install -y python3-venv
+                        fi
                         python3 -m venv venv
                         . venv/bin/activate
                         pip install -r requirements.txt pytest
@@ -38,12 +41,15 @@ pipeline {
         stage('SonarQube Analysis') {
             steps {
                 withSonarQubeEnv("${SONARQUBE_SERVER}") {
-                    sh '''
-                        sonar-scanner \
-                          -Dsonar.projectKey=Microcloud \
-                          -Dsonar.sources=app \
-                          -Dsonar.python.version=3.12
-                    '''
+                    script {
+                        def scannerHome = tool 'SonarScanner'
+                        sh """
+                            ${scannerHome}/bin/sonar-scanner \
+                              -Dsonar.projectKey=Microcloud \
+                              -Dsonar.sources=app \
+                              -Dsonar.python.version=3.12
+                        """
+                    }
                 }
             }
         }

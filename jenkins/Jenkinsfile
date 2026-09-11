@@ -2,9 +2,9 @@ pipeline {
     agent any
 
     environment {
-        NEXUS_REGISTRY      = "<NEXUS_PUBLIC_IP>:8081/repository/docker-hosted"
+        NEXUS_REGISTRY      = "13.206.109.49/8081/repository/docker-hosted"
         SONARQUBE_SERVER    = "sonarqube-server"          // name configured in Jenkins > Manage Jenkins > System
-        EKS_CLUSTER_NAME    = "cloudforge-eks"
+        EKS_CLUSTER_NAME    = "microcloud-eks"
         AWS_REGION          = "ap-south-1"
         IMAGE_TAG           = "${env.BUILD_NUMBER}"
     }
@@ -13,7 +13,7 @@ pipeline {
 
         stage('Checkout') {
             steps {
-                git branch: 'main', url: 'https://github.com/<your-username>/cloudforge.git'
+                git branch: 'main', url: 'https://github.com/sakthiPrabha58/ecommerce-deployment.git'
             }
         }
 
@@ -40,7 +40,7 @@ pipeline {
                 withSonarQubeEnv("${SONARQUBE_SERVER}") {
                     sh '''
                         sonar-scanner \
-                          -Dsonar.projectKey=cloudforge \
+                          -Dsonar.projectKey=Microcloud \
                           -Dsonar.sources=app \
                           -Dsonar.python.version=3.12
                     '''
@@ -59,8 +59,8 @@ pipeline {
         stage('Build Docker Images') {
             steps {
                 sh """
-                    docker build -t ${NEXUS_REGISTRY}/cloudforge-backend:${IMAGE_TAG} ./app/backend
-                    docker build -t ${NEXUS_REGISTRY}/cloudforge-frontend:${IMAGE_TAG} ./app/frontend
+                    docker build -t ${NEXUS_REGISTRY}/microcloud-backend:${IMAGE_TAG} ./app/backend
+                    docker build -t ${NEXUS_REGISTRY}/microcloud-frontend:${IMAGE_TAG} ./app/frontend
                 """
             }
         }
@@ -70,8 +70,8 @@ pipeline {
                 withCredentials([usernamePassword(credentialsId: 'nexus-creds', usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASS')]) {
                     sh """
                         echo "\$NEXUS_PASS" | docker login ${NEXUS_REGISTRY} -u "\$NEXUS_USER" --password-stdin
-                        docker push ${NEXUS_REGISTRY}/cloudforge-backend:${IMAGE_TAG}
-                        docker push ${NEXUS_REGISTRY}/cloudforge-frontend:${IMAGE_TAG}
+                        docker push ${NEXUS_REGISTRY}/microcloud-backend:${IMAGE_TAG}
+                        docker push ${NEXUS_REGISTRY}/microcloud-frontend:${IMAGE_TAG}
                     """
                 }
             }
@@ -82,8 +82,8 @@ pipeline {
                 sh """
                     aws eks update-kubeconfig --name ${EKS_CLUSTER_NAME} --region ${AWS_REGION}
 
-                    sed -i 's|<NEXUS_REGISTRY>/cloudforge-backend:latest|${NEXUS_REGISTRY}/cloudforge-backend:${IMAGE_TAG}|' k8s/backend-deployment.yaml
-                    sed -i 's|<NEXUS_REGISTRY>/cloudforge-frontend:latest|${NEXUS_REGISTRY}/cloudforge-frontend:${IMAGE_TAG}|' k8s/frontend-deployment.yaml
+                    sed -i 's|<NEXUS_REGISTRY>/microcloud-backend:latest|${NEXUS_REGISTRY}/microcloud-backend:${IMAGE_TAG}|' k8s/backend-deployment.yaml
+                    sed -i 's|<NEXUS_REGISTRY>/microcloud-frontend:latest|${NEXUS_REGISTRY}/microcloud-frontend:${IMAGE_TAG}|' k8s/frontend-deployment.yaml
 
                     kubectl apply -f k8s/namespace.yaml
                     kubectl apply -f k8s/backend-deployment.yaml
@@ -93,8 +93,8 @@ pipeline {
                     kubectl apply -f k8s/ingress.yaml
                     kubectl apply -f k8s/hpa.yaml
 
-                    kubectl rollout status deployment/backend -n cloudforge
-                    kubectl rollout status deployment/frontend -n cloudforge
+                    kubectl rollout status deployment/backend -n microcloud
+                    kubectl rollout status deployment/frontend -n microcloud
                 """
             }
         }

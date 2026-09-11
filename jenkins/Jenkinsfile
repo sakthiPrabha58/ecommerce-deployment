@@ -3,7 +3,8 @@ pipeline {
 
     environment {
         NEXUS_REGISTRY      = "13.206.109.49:8081/repository/docker-hosted"
-        SONARQUBE_SERVER    = "sonarqube-server"          // name configured in Jenkins > Manage Jenkins > System
+        SONARQUBE_SERVER    = "sonarqube-server"   // name configured in Jenkins > Manage Jenkins > System
+        SCANNER_HOME = tool 'sonar-scanner'
         EKS_CLUSTER_NAME    = "microcloud-eks"
         AWS_REGION          = "ap-south-1"
         IMAGE_TAG           = "${env.BUILD_NUMBER}"
@@ -42,9 +43,8 @@ pipeline {
             steps {
                 withSonarQubeEnv("${SONARQUBE_SERVER}") {
                     script {
-                        def scannerHome = tool 'SonarScanner'
                         sh """
-                            ${scannerHome}/bin/sonar-scanner \
+                            ${SCANNER_HOME}/bin/sonar-scanner \
                               -Dsonar.projectKey=Microcloud \
                               -Dsonar.sources=app \
                               -Dsonar.python.version=3.12

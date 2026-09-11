@@ -42,14 +42,12 @@ pipeline {
         stage('SonarQube Analysis') {
             steps {
                 withSonarQubeEnv("${SONARQUBE_SERVER}") {
-                    script {
-                        sh """
+                        sh '''
                             ${SCANNER_HOME}/bin/sonar-scanner \
                               -Dsonar.projectKey=Microcloud \
                               -Dsonar.sources=app \
                               -Dsonar.python.version=3.12
-                        """
-                    }
+                        '''
                 }
             }
         }

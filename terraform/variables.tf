@@ -7,7 +7,7 @@ variable "aws_region" {
 variable "project_name" {
   description = "Project name used as a prefix for all resources"
   type        = string
-  default     = "cloudforge"
+  default     = "microcloud"
 }
 
 variable "vpc_cidr" {
@@ -28,22 +28,22 @@ variable "private_subnet_cidrs" {
 
 variable "eks_cluster_version" {
   type    = string
-  default = "1.29"
+  default = "3.6"
 }
 
 variable "node_instance_type" {
   type    = string
-  default = "t3.medium"
+  default = "c7i-flex.large"
 }
 
 variable "tools_instance_type" {
   description = "Instance type used for Jenkins / Nexus / SonarQube boxes"
   type        = string
-  default     = "t3.large"
+  default     = "m7i-flex.large"
 }
 
 variable "key_pair_name" {
   description = "Existing EC2 key pair name for SSH access"
   type        = string
-  default     = "cloudforge-key"
+  default     = "key_mumbai"
 }

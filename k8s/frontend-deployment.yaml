@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: frontend
-  namespace: cloudforge
+  namespace: microcloud
   labels:
     app: frontend
 spec:
@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: frontend
-          image: <NEXUS_REGISTRY>/cloudforge-frontend:latest
+          image: <NEXUS_REGISTRY>/microcloud-frontend:latest
           ports:
             - containerPort: 80
           resources:

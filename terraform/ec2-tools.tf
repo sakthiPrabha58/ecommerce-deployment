@@ -6,10 +6,37 @@ resource "aws_security_group" "tools_sg" {
   description = "Security group for Jenkins/Nexus/SonarQube boxes"
   vpc_id      = aws_vpc.main.id
 
-  ingress { description = "SSH"       from_port = 22    to_port = 22    protocol = "tcp" cidr_blocks = ["0.0.0.0/0"] }
-  ingress { description = "Jenkins"   from_port = 8080  to_port = 8080  protocol = "tcp" cidr_blocks = ["0.0.0.0/0"] }
-  ingress { description = "SonarQube" from_port = 9000  to_port = 9000  protocol = "tcp" cidr_blocks = ["0.0.0.0/0"] }
-  ingress { description = "Nexus"     from_port = 8081  to_port = 8081  protocol = "tcp" cidr_blocks = ["0.0.0.0/0"] }
+  ingress { 
+    description = "SSH" 
+    from_port = 22   
+    to_port = 22   
+    protocol = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    description = "Jenkins"
+    from_port = 8080
+    to_port = 8080
+    protocol = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress { 
+    description = "SonarQube"
+    from_port = 9000
+    to_port = 9000
+    protocol = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress { 
+    description = "Nexus"
+    from_port = 8081  
+    to_port = 8081
+    protocol = "tcp"
+    cidr_blocks = ["0.0.0.0/0"] 
+  }
 
   egress {
     from_port   = 0
@@ -38,6 +65,11 @@ resource "aws_instance" "jenkins" {
   key_name               = var.key_pair_name
   vpc_security_group_ids = [aws_security_group.tools_sg.id]
 
+  root_block_device {
+    volume_size = 30
+    volume_type = "gp3"
+  }
+
   tags = { Name = "${var.project_name}-jenkins" }
 }
 
@@ -48,6 +80,11 @@ resource "aws_instance" "sonarqube" {
   key_name               = var.key_pair_name
   vpc_security_group_ids = [aws_security_group.tools_sg.id]
 
+  root_block_device {
+    volume_size = 25
+    volume_type = "gp3"
+  }
+
   tags = { Name = "${var.project_name}-sonarqube" }
 }
 
@@ -57,6 +94,11 @@ resource "aws_instance" "nexus" {
   subnet_id              = aws_subnet.public[0].id
   key_name               = var.key_pair_name
   vpc_security_group_ids = [aws_security_group.tools_sg.id]
+
+  root_block_device {
+    volume_size = 25
+    volume_type = "gp3"
+  }
 
   tags = { Name = "${var.project_name}-nexus" }
 }

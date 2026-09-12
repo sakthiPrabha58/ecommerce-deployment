@@ -46,7 +46,7 @@ pipeline {
                         export PATH=$PATH:/opt/sonar-scanner/bin
                         echo "Running SonarQube analysis..."
         
-                           sonar-scanner \
+                           /opt/sonar-scanner/bin/sonar-scanner \
                           -Dsonar.projectKey=Microcloud \
                           -Dsonar.sources=app \
                           -Dsonar.python.version=3.12

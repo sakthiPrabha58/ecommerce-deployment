@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        NEXUS_REGISTRY      = "13.126.93.108:8082"
+        NEXUS_REGISTRY      = "10.0.1.43:8082"
         SONARQUBE_SERVER    = "sonarqube-server"   // name configured in Jenkins > Manage Jenkins > System
         EKS_CLUSTER_NAME    = "microcloud-eks"
         SCANNER_HOME         = tool 'sonar-scanner'

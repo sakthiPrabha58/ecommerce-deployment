@@ -108,6 +108,7 @@ pipeline {
                         kubectl rollout status deployment/backend -n microcloud
                         kubectl rollout status deployment/frontend -n microcloud
                     """
+                }
             }
         }
     }

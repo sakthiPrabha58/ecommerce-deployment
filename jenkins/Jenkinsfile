@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         NEXUS_REGISTRY      = "10.0.1.43:8082"
-        SONARQUBE_SERVER    = "sonarqube-server"   // name configured in Jenkins > Manage Jenkins > System
+        SONARQUBE_SERVER    = "sonarqube-server"  
         EKS_CLUSTER_NAME    = "microcloud-eks"
         SCANNER_HOME         = tool 'sonar-scanner'
         AWS_REGION          = "ap-south-1"
@@ -84,23 +84,30 @@ pipeline {
 
         stage('Deploy to EKS') {
             steps {
-                sh """
-                    aws eks update-kubeconfig --name ${EKS_CLUSTER_NAME} --region ${AWS_REGION}
-
-                    sed -i 's|<NEXUS_REGISTRY>/microcloud-backend:latest|${NEXUS_REGISTRY}/microcloud-backend:${IMAGE_TAG}|' k8s/backend-deployment.yaml
-                    sed -i 's|<NEXUS_REGISTRY>/microcloud-frontend:latest|${NEXUS_REGISTRY}/microcloud-frontend:${IMAGE_TAG}|' k8s/frontend-deployment.yaml
-
-                    kubectl apply -f k8s/namespace.yaml
-                    kubectl apply -f k8s/backend-deployment.yaml
-                    kubectl apply -f k8s/backend-service.yaml
-                    kubectl apply -f k8s/frontend-deployment.yaml
-                    kubectl apply -f k8s/frontend-service.yaml
-                    kubectl apply -f k8s/ingress.yaml
-                    kubectl apply -f k8s/hpa.yaml
-
-                    kubectl rollout status deployment/backend -n microcloud
-                    kubectl rollout status deployment/frontend -n microcloud
-                """
+                withCredentials([usernamePassword(credentialsId: 'nexus-creds', usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASS')]) {
+                    sh """
+                        aws eks update-kubeconfig --name ${EKS_CLUSTER_NAME} --region ${AWS_REGION}
+    
+                        sed -i 's|<NEXUS_REGISTRY>/microcloud-backend:latest|${NEXUS_REGISTRY}/microcloud-backend:${IMAGE_TAG}|' k8s/backend-deployment.yaml
+                        sed -i 's|<NEXUS_REGISTRY>/microcloud-frontend:latest|${NEXUS_REGISTRY}/microcloud-frontend:${IMAGE_TAG}|' k8s/frontend-deployment.yaml
+    
+                        kubectl apply -f k8s/namespace.yaml
+                        kubectl create secret docker-registry nexus-secret \
+                        --docker-server=${NEXUS_REGISTRY} \
+                        --docker-username="\$NEXUS_USER" \
+                        --docker-password="\$NEXUS_PASS" \
+                        --namespace=microcloud \
+                        --dry-run=client -o yaml | kubectl apply -f -
+                        kubectl apply -f k8s/backend-deployment.yaml
+                        kubectl apply -f k8s/backend-service.yaml
+                        kubectl apply -f k8s/frontend-deployment.yaml
+                        kubectl apply -f k8s/frontend-service.yaml
+                        kubectl apply -f k8s/ingress.yaml
+                        kubectl apply -f k8s/hpa.yaml
+    
+                        kubectl rollout status deployment/backend -n microcloud
+                        kubectl rollout status deployment/frontend -n microcloud
+                    """
             }
         }
     }

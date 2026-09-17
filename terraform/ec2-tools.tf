@@ -1,15 +1,12 @@
-# EC2 instances that host Jenkins, Nexus and SonarQube.
-# Ansible configures the actual software once these are up.
-
 resource "aws_security_group" "tools_sg" {
   name        = "${var.project_name}-tools-sg"
   description = "Security group for Jenkins/Nexus/SonarQube boxes"
   vpc_id      = aws_vpc.main.id
 
-  ingress { 
-    description = "SSH" 
-    from_port = 22   
-    to_port = 22   
+  ingress {
+    description = "SSH"
+    from_port = 22
+    to_port = 22
     protocol = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
@@ -22,7 +19,7 @@ resource "aws_security_group" "tools_sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  ingress { 
+  ingress {
     description = "SonarQube"
     from_port = 9000
     to_port = 9000
@@ -30,12 +27,12 @@ resource "aws_security_group" "tools_sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  ingress { 
+  ingress {
     description = "Nexus"
-    from_port = 8081  
+    from_port = 8081
     to_port = 8081
     protocol = "tcp"
-    cidr_blocks = ["0.0.0.0/0"] 
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   egress {
@@ -64,6 +61,7 @@ resource "aws_instance" "jenkins" {
   subnet_id              = aws_subnet.public[0].id
   key_name               = var.key_pair_name
   vpc_security_group_ids = [aws_security_group.tools_sg.id]
+  iam_instance_profile = aws_iam_instance_profile.jenkins_profile.name
 
   root_block_device {
     volume_size = 30
@@ -81,7 +79,7 @@ resource "aws_instance" "sonarqube" {
   vpc_security_group_ids = [aws_security_group.tools_sg.id]
 
   root_block_device {
-    volume_size = 25
+    volume_size = 30
     volume_type = "gp3"
   }
 
@@ -96,7 +94,7 @@ resource "aws_instance" "nexus" {
   vpc_security_group_ids = [aws_security_group.tools_sg.id]
 
   root_block_device {
-    volume_size = 25
+    volume_size = 30
     volume_type = "gp3"
   }
 

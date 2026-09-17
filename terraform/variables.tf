@@ -28,7 +28,7 @@ variable "private_subnet_cidrs" {
 
 variable "eks_cluster_version" {
   type    = string
-  default = "3.6"
+  default = "1.36"
 }
 
 variable "node_instance_type" {
@@ -46,4 +46,10 @@ variable "key_pair_name" {
   description = "Existing EC2 key pair name for SSH access"
   type        = string
   default     = "key_mumbai"
+}
+
+variable "domain_name" {
+  description = "optional to add domain name"
+  type = string
+  default = "sjss-dev.shop"
 }

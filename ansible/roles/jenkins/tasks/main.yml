@@ -1,7 +1,7 @@
 ---
-- name: Install Java 17 (required by Jenkins)
+- name: Install Java 21
   apt:
-    name: openjdk-17-jdk
+    name: openjdk-21-jdk
     state: present
     update_cache: yes
 
@@ -65,3 +65,8 @@
   command: /tmp/aws/install
   args:
     creates: /usr/local/bin/aws
+
+- name: Install python3-venv
+  apt:
+    name: python3-venv
+    state: present

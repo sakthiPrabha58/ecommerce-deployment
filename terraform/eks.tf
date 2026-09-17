@@ -81,6 +81,7 @@ resource "aws_eks_node_group" "main" {
     aws_iam_role_policy_attachment.eks_worker_node_policy,
     aws_iam_role_policy_attachment.eks_cni_policy,
     aws_iam_role_policy_attachment.eks_ecr_read_only,
-    aws_iam_role_policy_attachment.ssm_managed_instance_core,
   ]
 }
+
+
